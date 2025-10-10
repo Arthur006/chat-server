@@ -1,0 +1,8 @@
+services:
+  server:
+    build:
+      context: ../server/
+      dockerfile: devcontainer/Dockerfile.dev
+    volumes:
+      - ../server:/app
+    command: sleep infinity
