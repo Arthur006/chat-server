@@ -2,5 +2,5 @@
 
 mkdir -p build
 cd build
-cmake ../src/
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../src/
 make

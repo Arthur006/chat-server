@@ -3,6 +3,8 @@ services:
     build:
       context: ../server/
       dockerfile: devcontainer/Dockerfile.dev
+    ports:
+      - "8080:8080"
     volumes:
       - ../server:/app
     command: sleep infinity
