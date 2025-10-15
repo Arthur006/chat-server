@@ -3,6 +3,7 @@
 #include <iostream>
 #include <format>
 #include <sys/socket.h>
+#include <string.h>
 
 void ClientHandler::run(std::stop_token st) {
 
@@ -25,6 +26,8 @@ void ClientHandler::run(std::stop_token st) {
     std::string out_str = std::format("Echo: {}", buff);
 
     send(m_client_fd, out_str.c_str(), out_str.length(), 0);
+
+    memset(buff, 0, BUFF_SIZE);
   }
   std::cout << std::format("Closed handler {}", m_client_fd) << std::endl;
 }
