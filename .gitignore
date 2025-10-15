@@ -1,2 +1,4 @@
 # Ignore build directories
 /server/build/
+/*/.cache/
+compile_commands.json
