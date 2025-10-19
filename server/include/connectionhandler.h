@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdio>
 #include <functional>
 #include <thread>
 #include <sys/socket.h>
