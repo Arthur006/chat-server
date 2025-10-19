@@ -6,5 +6,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../server:/app
+      - ../server:${PWD}/../server
+    working_dir: ${PWD}/../server
     command: sleep infinity
