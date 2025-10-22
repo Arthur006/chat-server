@@ -1,46 +1,61 @@
 #include "clienthandler.h"
 
+#include <coroutine>
 #include <iostream>
 #include <format>
+#include <ostream>
 #include <sys/socket.h>
 #include <string.h>
+#include <unistd.h>
 
-void ClientHandler::run(std::stop_token st) {
+#include "room.h"
 
-  std::cout << "Client Handler started on fd: " << m_client_fd << std::endl;
+ClientHandler::ClientHandler(int client_fd, std::shared_ptr<Room> room):
+  m_fd{client_fd},
+  m_room{room}
+{
+  m_task = run();
+}
+Task ClientHandler::run() {
 
-  constexpr int BUFF_SIZE = 1024;
-  char buff[BUFF_SIZE] = {0};
+  std::cout << "Client Handler started on fd: " << m_fd << std::endl;
 
-  char out_buff[BUFF_SIZE];
+  while (true) {
 
-  while (!st.stop_requested()) {
+    co_await std::suspend_always{};
+    std::cout << "ClientHandler::run - Resumed" << std::endl;
 
-    std::cout << "Looping ClientHandler" << std::endl;
+    constexpr int BUFF_SIZE = 1024;
+    char buff[BUFF_SIZE] = {0};
 
-    int bytes_read = read(m_client_fd, buff, BUFF_SIZE);
+    int bytes_read = read(m_fd, buff, BUFF_SIZE);
     if (bytes_read <= 0) {
-      break;
+      std::cerr << std::format("Error reading on {}", m_fd) << std::endl;
+      close(m_fd);
+      co_return;
     }
 
-    std::string out_str = std::format("Echo: {}", buff);
-
-    send(m_client_fd, out_str.c_str(), out_str.length(), 0);
+    auto message = std::string(buff, bytes_read);
+    m_room->broadcast(message);
 
     memset(buff, 0, BUFF_SIZE);
   }
-  std::cout << std::format("Closed handler {}", m_client_fd) << std::endl;
+
+  co_return;
 }
 
-ClientHandler::ClientHandler(int client_fd):
-  m_client_fd{client_fd} {
-    m_handler_thread = std::jthread([this](std::stop_token st) {
-      run(st);
-    });
+
+void ClientHandler::resume() {
+  m_task.resume();
 }
 
-void ClientHandler::stop() {
-  std::cout << "Stopping Client handler..." << std::endl;
-  m_handler_thread.request_stop();
-  shutdown(m_client_fd, SHUT_RD);
+
+void ClientHandler::send(std::string message) {
+  std::cout << "ClientHandler::send|Sending on fd: " << m_fd << std::endl;
+
+  std::cout << "ClientHandler::send|Sending " << message << std::endl;
+
+  int ret = ::send(m_fd, message.c_str(), message.length(), 0);
+  
+  std::cout << "ClientHandler::send|Returned with " << ret << std::endl;
 }

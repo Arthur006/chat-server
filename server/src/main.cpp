@@ -10,6 +10,7 @@ int main(int argc, char** argv) {
   Server server;
   server.run();
   std::cin >> stop;
+  std::cout << "main - Stopping server" << std::endl;
   server.stop();
 
   return 0;

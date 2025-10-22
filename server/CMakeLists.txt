@@ -10,6 +10,7 @@ add_executable(hello
   src/server.cpp
   src/clienthandler.cpp
   src/connectionhandler.cpp
+  src/room.cpp
 )
 
 target_include_directories(hello

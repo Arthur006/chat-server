@@ -1,18 +1,23 @@
 #pragma once
 
-#include <stop_token>
-#include <thread>
+#include "coroutine.h"
+#include "iresumable.h"
+#include <memory>
+#include <string>
 
-class ClientHandler {
+class Room;
+
+class ClientHandler: public IResumable {
+
   private:
-    int m_client_fd;
-    std::stop_source m_st_source;
-    std::jthread m_handler_thread;
+    int m_fd;
+    Task m_task;
+    std::shared_ptr<Room> m_room;
 
-    void run(std::stop_token st);
+    Task run();
 
   public:
-    ClientHandler(int client_fd);
-
-    void stop();
+    ClientHandler(int client_fd, std::shared_ptr<Room> room);
+    void resume() override;
+    void send(std::string message);
 };
