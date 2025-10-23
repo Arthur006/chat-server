@@ -7,11 +7,11 @@ int main(int argc, char** argv) {
 
   std::string stop;
 
-  Server server;
-  server.run();
+  auto server = std::make_shared<Server>();
+  server->run();
   std::cin >> stop;
   std::cout << "main - Stopping server" << std::endl;
-  server.stop();
+  server->stop();
 
   return 0;
 }
