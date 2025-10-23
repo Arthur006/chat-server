@@ -35,7 +35,7 @@ Server::Server() {
 
   auto create_client = [this](int client_fd) {
 
-    auto client = std::make_shared<ClientHandler>(client_fd, m_room);
+    auto client = std::make_shared<ClientHandler>(client_fd, shared_from_this(), m_room);
 
     m_room->addToRoom(client);
     m_clients[client_fd] = client;
@@ -117,3 +117,9 @@ void Server::stop() {
   std::cout << "Stopped Server!" << std::endl;
 }
 
+void Server::remove(const int &client_fd) {
+  m_clients.erase(client_fd);
+
+  struct epoll_event event;
+  epoll_ctl(m_epfd, EPOLL_CTL_DEL, client_fd, &event);
+}

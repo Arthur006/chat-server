@@ -9,7 +9,7 @@
 #include "iresumable.h"
 #include "room.h"
 
-class Server {
+class Server: public std::enable_shared_from_this<Server> {
 
   private:
     std::shared_ptr<ConnectionHandler> m_conn_handler;
@@ -26,5 +26,6 @@ class Server {
 
     void run();
     void stop();
+    void remove(const int &client_fd);
 };
 

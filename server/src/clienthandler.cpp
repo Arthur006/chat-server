@@ -2,16 +2,17 @@
 
 #include <coroutine>
 #include <iostream>
-#include <format>
 #include <ostream>
 #include <sys/socket.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "server.h"
 #include "room.h"
 
-ClientHandler::ClientHandler(int client_fd, std::shared_ptr<Room> room):
+ClientHandler::ClientHandler(int client_fd, std::shared_ptr<Server> server, std::shared_ptr<Room> room):
   m_fd{client_fd},
+  m_server{server},
   m_room{room}
 {
   m_task = run();
@@ -30,7 +31,8 @@ Task ClientHandler::run() {
 
     int bytes_read = read(m_fd, buff, BUFF_SIZE);
     if (bytes_read <= 0) {
-      std::cerr << std::format("Error reading on {}", m_fd) << std::endl;
+      m_room->removeFromRoom(shared_from_this());
+      m_server->remove(m_fd);
       close(m_fd);
       co_return;
     }

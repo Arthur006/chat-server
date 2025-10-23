@@ -11,5 +11,6 @@ class Room {
 
   public:
     void addToRoom(std::shared_ptr<ClientHandler> client);
+    void removeFromRoom(std::shared_ptr<ClientHandler> client);
     void broadcast(std::string message);
 };
