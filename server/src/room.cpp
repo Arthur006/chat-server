@@ -1,6 +1,6 @@
 #include "room.h"
-#include "iostream"
 #include <algorithm>
+#include <format>
 
 void Room::addToRoom(std::shared_ptr<ClientHandler> client) {
   m_clients.push_back(client);
@@ -11,11 +11,12 @@ void Room::removeFromRoom(std::shared_ptr<ClientHandler> client) {
   m_clients.erase(rem_it);
 }
 
-void Room::broadcast(std::string message) {
-  std::cout << "Room::broadcast|Broadcasting to clients\n";
+void Room::broadcast(const std::shared_ptr<ClientHandler> &sender, std::string message) {
 
   for(const auto &client : m_clients) {
-    std::cout << "Room::broadcast|Sending\n";
-    client->send(message);
+    if (client == sender)
+      continue;
+
+    client->send(std::format("{0}: {1}", sender->getUserName(), message));
   }
 }

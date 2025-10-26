@@ -17,7 +17,6 @@ Server::Server() {
   m_epfd = epoll_create1(epoll_flags);
 
   m_shutdown_fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-  std::cout << "Created shutdown fd " << m_shutdown_fd << std::endl;
   epoll_event shutdown_event{
     .events = EPOLLIN,
     .data {
@@ -61,37 +60,25 @@ void Server::run_thread(std::stop_token st) {
   while(!st.stop_requested()) {
 
     auto num_events = epoll_wait(m_epfd, events, MAX_EVENTS, -1);
-    if (num_events == -1) {
-      if (st.stop_requested())
-        std::cout << "Server::run_thread|Stop has been requested\n";
-      else
-        std::cerr << "Server::run|Error polling fds" << std::endl;
+    if (num_events == -1)
       return;
-    }
 
-    std::cout << std::format("Server::run|{0} events triggered", num_events) << std::endl;
     for (int i = 0; i < num_events; i++) {
 
       auto event = events[i];
       auto fd = event.data.fd;
 
       if (fd == m_shutdown_fd) {
-        std::cout << "Shutting down server\n";
         close(m_epfd);
         break;
       }
 
-      std::cout << std::format("Found client handler {}", fd) << std::endl;
       auto task = m_clients[fd];
-
-      std::cout << std::format("Found task") << std::endl;
       if (task) {
-        std::cout << "Resuming" << std::endl;
         task->resume();
       }
     }
   }
-  std::cout << "Stop was requested\n";
 }
 
 void Server::run() {
@@ -109,12 +96,10 @@ void Server::stop() {
   m_clients.clear();
 
   m_server_thread.request_stop();
-  uint64_t one = 1;
+  constexpr uint64_t one = 1;
   int res = write(m_shutdown_fd, &one, sizeof(one));
-  if (res < 1)
-    std::cerr << "Did not write buffer\n";
 
-  std::cout << "Stopped Server!" << std::endl;
+  std::cout << "Stopped Server" << std::endl;
 }
 
 void Server::remove(const int &client_fd) {
