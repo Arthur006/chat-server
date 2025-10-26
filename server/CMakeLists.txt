@@ -5,14 +5,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(hello 
+add_executable(server
   src/main.cpp
   src/server.cpp
   src/clienthandler.cpp
   src/connectionhandler.cpp
+  src/room.cpp
 )
 
-target_include_directories(hello
+target_include_directories(server
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )
