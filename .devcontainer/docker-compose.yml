@@ -1,0 +1,11 @@
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../:${PWD}/../
+    working_dir: ${PWD}/../
+    command: sleep infinity
