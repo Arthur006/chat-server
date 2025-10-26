@@ -1,23 +1,17 @@
 #include "connectionhandler.h"
 
-#include <iostream>
-
 void ConnectionHandler::run(std::stop_token st) {
   if (listen(m_server_fd, 1) < 0) {
     return;
   }
 
   while (!st.stop_requested()) {
-    std::cout << "Looping Connection Handler" << std::endl;
     int client_fd = accept(m_server_fd, (sockaddr *)&m_addr, &m_addr_len);
     if (client_fd < 0) {
       break;
     }
-    std::cout << "Client connected" << std::endl;
     m_on_connect(client_fd);
   }
-
-  std::cout << "Stopped Connection handler" << std::endl;
 }
 
 ConnectionHandler::ConnectionHandler(int port, std::function<void(int)> on_connect):
@@ -47,7 +41,6 @@ void ConnectionHandler::start() {
 }
 
 void ConnectionHandler::stop() {
-  std::cout << "Stopping Connection handler..." << std::endl;
   m_listener_thread.request_stop();
   shutdown(m_server_fd, SHUT_RD);
 }
